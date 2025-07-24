@@ -5,33 +5,44 @@
 {% block page_title %}Manajemen Tarif{% endblock %}
 
 {% block page_actions %}
-    <a href="{{ url_for('admin.tambah_tarif') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Tarif</a>
+    <a href="{{ url_for('admin.tambah_tarif') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Tarif Baru</a>
 {% endblock %}
 
 {% block content %}
+    <p style="margin-top: -1rem; margin-bottom: 2rem; color: var(--text-muted);">
+        Berikut adalah daftar tarif listrik PLN berdasarkan daya yang berlaku. Data ini dapat berubah sewaktu-waktu.
+    </p>
+
     <table>
         <thead>
             <tr>
-                <th>Daya (VA)</th>
-                <th>Tarif per kWh</th>
-                <th>Aksi</th>
+                <th style="width: 5%;">#</th>
+                <th style="width: 15%;">Daya (VA)</th>
+                <th style="width: 20%;">Tarif/kWh</th>
+                <th>Deskripsi</th>
+                <th style="width: 15%;">Aksi</th>
             </tr>
         </thead>
         <tbody>
             {% for tarif in daftar_tarif %}
             <tr>
-                <td>{{ tarif.daya }}</td>
-                <td>Rp {{ "%.2f"|format(tarif.tarif_per_kwh) }}</td>
+                {# Menampilkan nomor urut menggunakan loop.index #}
+                <td>{{ loop.index }}</td>
+                <td>{{ "{:,}".format(tarif.daya).replace(',', '.') }} VA</td>
+                <td>
+                    Rp {{ "{:,.2f}".format(tarif.tarif_per_kwh).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </td>
+                <td>{{ tarif.deskripsi or '-' }}</td>
                 <td class="actions">
-                    <a href="{{ url_for('admin.edit_tarif', id=tarif.id) }}">Edit</a>
-                    <form action="{{ url_for('admin.hapus_tarif', id=tarif.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline;">
-                        <button type="submit" style="background:none; border:none; color: #E74C3C; cursor:pointer; padding:0; font-weight:500; font-family:inherit; font-size:inherit;">Hapus</button>
+                    <a href="{{ url_for('admin.edit_tarif', id=tarif.id) }}" class="action-btn btn-edit">Edit</a>
+                    <form action="{{ url_for('admin.hapus_tarif', id=tarif.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline; margin-left: 5px;">
+                        <button type="submit" class="action-btn btn-delete">Hapus</button>
                     </form>
                 </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="3" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data tarif.</td>
+                <td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data tarif.</td>
             </tr>
             {% endfor %}
         </tbody>

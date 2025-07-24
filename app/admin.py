@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required
 from wtforms.validators import DataRequired, Length
 from .models import Tarif, Pelanggan, Users, Roles
-from .forms import TarifForm, PelangganForm, UserForm
+from .forms import TarifForm, PelangganForm, PetugasForm
 from . import db
 
 # Inisialisasi Blueprint
@@ -26,7 +26,7 @@ def list_tarif():
 def tambah_tarif():
     form = TarifForm()
     if form.validate_on_submit():
-        tarif_baru = Tarif(daya=form.daya.data, tarif_per_kwh=form.tarif_per_kwh.data)
+        tarif_baru = Tarif(daya=form.daya.data, tarif_per_kwh=form.tarif_per_kwh.data, deskripsi=form.deskripsi.data)
         db.session.add(tarif_baru)
         db.session.commit()
         flash('Tarif baru berhasil ditambahkan!', 'success')
@@ -41,6 +41,7 @@ def edit_tarif(id):
     if form.validate_on_submit():
         tarif.daya = form.daya.data
         tarif.tarif_per_kwh = form.tarif_per_kwh.data
+        tarif.deskripsi = form.deskripsi.data
         db.session.commit()
         flash('Data tarif berhasil diperbarui!', 'success')
         return redirect(url_for('admin.list_tarif'))
@@ -92,6 +93,8 @@ def tambah_pelanggan():
             nomor_meter=form.nomor_meter.data,
             nama_pelanggan=form.nama_pelanggan.data,
             alamat=form.alamat.data,
+            email=form.email.data,
+            no_telepon=form.no_telepon.data,
             tarif_id=form.tarif_id.data,
             user=user_baru
         )
@@ -118,6 +121,8 @@ def edit_pelanggan(id):
         pelanggan.nomor_meter = form.nomor_meter.data
         pelanggan.nama_pelanggan = form.nama_pelanggan.data
         pelanggan.alamat = form.alamat.data
+        pelanggan.email = form.email.data
+        pelanggan.no_telepon = form.no_telepon.data
         pelanggan.tarif_id = form.tarif_id.data
         
         if form.password.data:
@@ -148,28 +153,51 @@ def hapus_pelanggan(id):
 @admin_bp.route('/petugas')
 @login_required
 def list_petugas():
-    role_petugas = Roles.query.filter_by(nama_role='petugas').first_or_404()
-    daftar_petugas = Users.query.filter_by(role_id=role_petugas.id).all()
-    return render_template('admin/petugas_list.html', title='Manajemen Petugas', daftar_petugas=daftar_petugas)
+    
+    # 1. Ambil ID untuk role 'admin' dan 'petugas'
+    admin_role = Roles.query.filter_by(nama_role='admin').first()
+    petugas_role = Roles.query.filter_by(nama_role='petugas').first()
+
+    # Pastikan role ada sebelum melanjutkan
+    if not admin_role or not petugas_role:
+        flash('Role "admin" atau "petugas" tidak ditemukan di database.', 'danger')
+        return redirect(url_for('admin.dashboard'))
+
+    # 2. Ambil semua user yang memiliki salah satu dari dua role tersebut
+    role_ids = [admin_role.id, petugas_role.id]
+    daftar_staf = Users.query.filter(Users.role_id.in_(role_ids)).order_by(Users.id).all()
+    # --------------------------------
+
+    return render_template('admin/petugas_list.html', 
+                           title='Manajemen Staf', 
+                           daftar_petugas=daftar_staf) 
+
 
 @admin_bp.route('/petugas/tambah', methods=['GET', 'POST'])
 @login_required
 def tambah_petugas():
     form = PetugasForm()
-    # Password wajib saat menambah
-    form.password.validators = [DataRequired(), Length(min=6)]
+    # Membuat password wajib diisi saat menambah
+    form.password.validators.insert(0, DataRequired(message="Password wajib diisi."))
+
     if form.validate_on_submit():
-        role_petugas = Roles.query.filter_by(nama_role='petugas').first_or_404()
-        petugas_baru = Users(
-            username=form.username.data,
-            nama_lengkap=form.nama_lengkap.data,
-            role_id=role_petugas.id
-        )
-        petugas_baru.set_password(form.password.data)
-        db.session.add(petugas_baru)
-        db.session.commit()
-        flash('Petugas baru berhasil ditambahkan!', 'success')
-        return redirect(url_for('admin.list_petugas'))
+        # Cek dulu apakah username sudah ada
+        existing_user = Users.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash('Username sudah digunakan. Silakan pilih username lain.', 'danger')
+        else:
+            role_petugas = Roles.query.filter_by(nama_role='petugas').first_or_404()
+            petugas_baru = Users(
+                username=form.username.data,
+                nama_lengkap=form.nama_lengkap.data,
+                role_id=role_petugas.id
+            )
+            petugas_baru.set_password(form.password.data)
+            db.session.add(petugas_baru)
+            db.session.commit()
+            flash('Petugas baru berhasil ditambahkan!', 'success')
+            return redirect(url_for('admin.list_petugas'))
+            
     return render_template('admin/petugas_form.html', title='Tambah Petugas', form=form)
 
 @admin_bp.route('/petugas/edit/<int:id>', methods=['GET', 'POST'])
@@ -177,15 +205,23 @@ def tambah_petugas():
 def edit_petugas(id):
     petugas = Users.query.get_or_404(id)
     form = PetugasForm(obj=petugas)
+
     if form.validate_on_submit():
-        petugas.username = form.username.data
-        petugas.nama_lengkap = form.nama_lengkap.data
-        if form.password.data:
-            petugas.set_password(form.password.data)
-        db.session.commit()
-        flash('Data petugas berhasil diperbarui!', 'success')
-        return redirect(url_for('admin.list_petugas'))
+        # Cek jika username diubah dan sudah ada yang pakai
+        if petugas.username != form.username.data and Users.query.filter_by(username=form.username.data).first():
+            flash('Username sudah digunakan. Silakan pilih username lain.', 'danger')
+        else:
+            petugas.username = form.username.data
+            petugas.nama_lengkap = form.nama_lengkap.data
+            # Hanya update password jika field diisi
+            if form.password.data:
+                petugas.set_password(form.password.data)
+            db.session.commit()
+            flash('Data petugas berhasil diperbarui!', 'success')
+            return redirect(url_for('admin.list_petugas'))
+
     return render_template('admin/petugas_form.html', title='Edit Petugas', form=form)
+
 
 @admin_bp.route('/petugas/hapus/<int:id>', methods=['POST'])
 @login_required

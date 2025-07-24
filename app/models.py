@@ -43,7 +43,8 @@ class Tarif(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     daya = db.Column(db.Integer, nullable=False)
     tarif_per_kwh = db.Column(db.Numeric(10, 2), nullable=False)
-    # Relasi ke Pelanggan
+    deskripsi = db.Column(db.Text, nullable=True)
+
     pelanggan = db.relationship('Pelanggan', backref='tarif', lazy=True)
 
     def __repr__(self):
@@ -53,11 +54,14 @@ class Tarif(db.Model):
 class Pelanggan(db.Model):
     __tablename__ = 'pelanggan'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
     nomor_meter = db.Column(db.String(100), unique=True, nullable=False)
     nama_pelanggan = db.Column(db.String(150))
     alamat = db.Column(db.Text)
+    email = db.Column(db.String(120), nullable=True)
+    no_telepon = db.Column(db.String(20), nullable=True)
     tarif_id = db.Column(db.Integer, db.ForeignKey('tarif.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True)
+
 
     def __repr__(self):
         return f'<Pelanggan {self.nama_pelanggan}>'

@@ -1,0 +1,178 @@
+/* File: app/static/css/admin_style.css */
+:root {
+    --primary-color: #4A90E2; /* Biru */
+    --background-color: #F7F8FC; /* Abu-abu sangat muda */
+    --sidebar-bg: #FFFFFF;
+    --text-color: #333;
+    --text-muted: #888;
+    --border-color: #EAEAEA;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+}
+
+/* --- Sidebar Tetap (Fixed) --- */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    box-sizing: border-box;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Style baru untuk logo gambar */
+.sidebar-logo {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+}
+
+.sidebar-nav { list-style: none; padding: 0 1.5rem; margin: 0; flex-grow: 1; }
+.sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.sidebar-nav li a i { margin-right: 15px; width: 20px; }
+.sidebar-nav li a:hover { color: var(--primary-color); }
+.sidebar-nav li a.active { background-color: var(--primary-color); color: white; }
+
+.sidebar-footer {
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+.sidebar-footer p { margin: 0 0 1rem 0; color: var(--text-muted); font-size: 0.9rem; }
+.sidebar-footer a { color: #E74C3C; text-decoration: none; font-weight: bold; }
+.sidebar-footer a:hover { text-decoration: underline; }
+
+/* --- Area Konten Utama --- */
+.main-content {
+    flex-grow: 1;
+    margin-left: 250px; /* Memberi ruang untuk sidebar */
+    padding: 2rem 3rem;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.content-header h1 { margin: 0; font-size: 2rem; }
+
+.content-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* --- Tombol dan Tabel --- */
+.btn {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.btn-primary { background-color: var(--primary-color); color: white; }
+.btn-primary:hover { background-color: #3a7ac0; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+th { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
+td .actions a { color: var(--primary-color); text-decoration: none; margin-right: 1rem; font-weight: 500; }
+td .actions a:hover { text-decoration: underline; }
+
+/* Style untuk tombol aksi di dalam tabel */
+.action-btn {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.action-btn:hover { transform: scale(1.05); }
+.btn-edit { background-color: #F5A623; }
+.btn-delete { background-color: #E74C3C; }
+
+.form-container {
+    max-width: 700px; /* Batasi lebar form agar tidak terlalu lebar */
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: inherit; /* Pastikan font sama dengan seluruh halaman */
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical; /* Izinkan pengguna mengubah tinggi textarea */
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn-secondary {
+    background-color: #ecf0f1;
+    color: #333;
+    text-decoration: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}

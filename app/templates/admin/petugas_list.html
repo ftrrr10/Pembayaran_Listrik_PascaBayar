@@ -1,8 +1,8 @@
 {% extends "admin/layout_admin.html" %}
 
-{% block title %}Manajemen Petugas{% endblock %}
+{% block title %}Manajemen Staf{% endblock %}
 
-{% block page_title %}Manajemen Petugas{% endblock %}
+{% block page_title %}Manajemen Staf{% endblock %}
 
 {% block page_actions %}
     <a href="{{ url_for('admin.tambah_petugas') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Petugas</a>
@@ -12,26 +12,42 @@
     <table>
         <thead>
             <tr>
+                <th style="width: 5%;">#</th>
                 <th>Username</th>
                 <th>Nama Lengkap</th>
-                <th>Aksi</th>
+                <th style="width: 15%;">Role</th>
+                <th style="width: 15%;">Aksi</th>
             </tr>
         </thead>
         <tbody>
-            {% for petugas in daftar_petugas %}
+            {% for staf in daftar_petugas %}
             <tr>
-                <td>{{ petugas.username }}</td>
-                <td>{{ petugas.nama_lengkap }}</td>
+                <td>{{ loop.index }}</td>
+                <td>{{ staf.username }}</td>
+                <td>{{ staf.nama_lengkap }}</td>
+                <td>
+                    {# Tampilkan nama role dengan huruf kapital di awal #}
+                    <span style="font-weight: bold; color: {{ '#4A90E2' if staf.role.nama_role == 'admin' else '#333' }};">
+                        {{ staf.role.nama_role.capitalize() }}
+                    </span>
+                </td>
                 <td class="actions">
-                    <a href="{{ url_for('admin.edit_petugas', id=petugas.id) }}">Edit</a>
-                    <form action="{{ url_for('admin.hapus_petugas', id=petugas.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline;">
-                        <button type="submit" style="background:none; border:none; color: #E74C3C; cursor:pointer; padding:0; font-weight:500; font-family:inherit; font-size:inherit;">Hapus</button>
-                    </form>
+                    {# --- KONDISI PENTING DI SINI --- #}
+                    {% if staf.role.nama_role == 'admin' %}
+                        {# Jika user adalah admin, tampilkan teks nonaktif #}
+                        <span style="color: var(--text-muted); font-style: italic;">Tidak tersedia</span>
+                    {% else %}
+                        {# Jika user adalah petugas, tampilkan tombol seperti biasa #}
+                        <a href="{{ url_for('admin.edit_petugas', id=staf.id) }}" class="action-btn btn-edit">Edit</a>
+                        <form action="{{ url_for('admin.hapus_petugas', id=staf.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline; margin-left: 5px;">
+                            <button type="submit" class="action-btn btn-delete">Hapus</button>
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="3" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data petugas.</td>
+                <td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data staf.</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - WattBill</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Memanggil file CSS baru -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_page.css') }}">
+</head>
+<body>
+    <!-- Latar belakang dinamis -->
+    <div class="background-blobs">
+        <div class="blob blue"></div>
+        <div class="blob yellow"></div>
+    </div>
+
+    <div class="login-card">
+        <div class="login-header">
+            <img src="{{ url_for('static', filename='img/wattbill.png') }}" alt="Logo WattBill" class="logo">
+            <h1>Panel Staf</h1>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash danger">{{ messages[0][1] }}</div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.login_staf') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <i class="input-icon fas fa-user"></i>
+                {{ form.username(class="form-input", placeholder="Username") }}
+            </div>
+            <div class="form-group">
+                <i class="input-icon fas fa-lock"></i>
+                {{ form.password(class="form-input", placeholder="Password") }}
+            </div>
+            <div class="form-options">
+                <label>{{ form.remember_me() }} Ingat Saya</label>
+                <a href="#">Lupa Password?</a>
+            </div>
+            {{ form.submit(value='Login', class="submit-btn") }}
+        </form>
+    </div>
+</body>
+</html>

@@ -14,8 +14,8 @@
             <tr>
                 <th>No. Meter</th>
                 <th>Nama Pelanggan</th>
-                <th>Alamat</th>
-                <th>Tarif (Daya)</th>
+                <th>No. Telepon</th>
+                <th>Email</th>
                 <th>Akun Login</th>
                 <th>Aksi</th>
             </tr>
@@ -25,8 +25,8 @@
             <tr>
                 <td>{{ pelanggan_item.nomor_meter }}</td>
                 <td>{{ pelanggan_item.nama_pelanggan }}</td>
-                <td>{{ pelanggan_item.alamat }}</td>
-                <td>{{ pelanggan_item.tarif.daya }} VA</td>
+                <td>{{ pelanggan_item.no_telepon or '-' }}</td>
+                <td>{{ pelanggan_item.email or '-' }}</td>
                 <td>
                     {% if pelanggan_item.user %}
                         {{ pelanggan_item.user.username }}
@@ -35,9 +35,9 @@
                     {% endif %}
                 </td>
                 <td class="actions">
-                    <a href="{{ url_for('admin.edit_pelanggan', id=pelanggan_item.id) }}">Edit</a>
+                    <a href="{{ url_for('admin.edit_pelanggan', id=pelanggan_item.id) }}" class="action-btn btn-edit">Edit</a>
                     <form action="{{ url_for('admin.hapus_pelanggan', id=pelanggan_item.id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pelanggan ini beserta akun loginnya?');" style="display:inline;">
-                        <button type="submit" style="background:none; border:none; color: #E74C3C; cursor:pointer; padding:0; font-weight:500; font-family:inherit; font-size:inherit;">Hapus</button>
+                        <button type="submit" class="action-btn btn-delete">Hapus</button>
                     </form>
                 </td>
             </tr>
