@@ -1,0 +1,50 @@
+{% extends "petugas/layout_petugas.html" %}
+
+{% block title %}Catat Meter - {{ pelanggan.nama_pelanggan }}{% endblock %}
+
+{% block content %}
+<style>
+    .info-box { background-color: #e9f5ff; border-left: 5px solid #3498db; padding: 1rem; margin-bottom: 2rem; border-radius: 5px; }
+    .info-box p { margin: 0.5rem 0; }
+    .form-container { max-width: 600px; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+    .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+    .form-actions { margin-top: 2rem; display: flex; gap: 1rem; }
+    .btn-secondary { background-color: #ecf0f1; color: #333; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 8px; }
+    .flash.danger { background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+</style>
+
+<h2>Catat Penggunaan Meter</h2>
+<hr>
+
+<div class="info-box">
+    <p><strong>Nama Pelanggan:</strong> {{ pelanggan.nama_pelanggan }}</p>
+    <p><strong>Nomor Meter:</strong> {{ pelanggan.nomor_meter }}</p>
+    <p><strong>Meteran Awal Bulan Ini (diambil dari bulan lalu):</strong> <strong>{{ meter_awal }}</strong></p>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'danger' %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="form-container">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.meter_akhir.label }}
+            {{ form.meter_akhir() }}
+        </div>
+        <div class="form-actions">
+            {{ form.submit(class="btn-catat") }}
+            <a href="{{ url_for('petugas.dashboard') }}" class="btn-secondary">Batal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

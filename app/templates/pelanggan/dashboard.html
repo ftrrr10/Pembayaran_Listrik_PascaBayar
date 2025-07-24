@@ -1,0 +1,48 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Dashboard Saya{% endblock %}
+
+{% block content %}
+<style>
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #EAEAEA; }
+    th { color: #888; text-transform: uppercase; font-size: 0.9rem; }
+    .status-lunas { color: #27ae60; font-weight: bold; }
+    .status-belum { color: #e74c3c; font-weight: bold; }
+</style>
+<h2>Riwayat Tagihan Anda</h2>
+<p>Berikut adalah daftar semua tagihan listrik Anda.</p>
+<br>
+<table>
+    <thead>
+        <tr>
+            <th>Periode</th>
+            <th>Jumlah Meter (kWh)</th>
+            <th>Total Tagihan</th>
+            <th>Status</th>
+            <th>Tanggal Bayar</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tagihan in daftar_tagihan %}
+        <tr>
+            <td>{{ tagihan.penggunaan.bulan }}/{{ tagihan.penggunaan.tahun }}</td>
+            <td>{{ tagihan.jumlah_meter }}</td>
+            <td>Rp {{ "%.2f"|format(tagihan.total_bayar) }}</td>
+            <td>
+                {% if tagihan.status == 'Lunas' %}
+                    <span class="status-lunas">{{ tagihan.status }}</span>
+                {% else %}
+                    <span class="status-belum">{{ tagihan.status }}</span>
+                {% endif %}
+            </td>
+            <td>{{ tagihan.tanggal_bayar if tagihan.tanggal_bayar else '-' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align:center; padding: 2rem;">Anda belum memiliki riwayat tagihan.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "admin/layout_admin.html" %}
+
+{% block title %}Manajemen Tagihan{% endblock %}
+
+{% block page_title %}Manajemen Tagihan{% endblock %}
+
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID Tagihan</th>
+                <th>Nama Pelanggan</th>
+                <th>Bulan/Tahun</th>
+                <th>Total Bayar</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tagihan in daftar_tagihan %}
+            <tr>
+                <td>#{{ tagihan.id }}</td>
+                <!-- Mengakses data pelanggan melalui relasi: tagihan -> penggunaan -> pelanggan -->
+                <td>{{ tagihan.penggunaan.pelanggan.nama_pelanggan }}</td>
+                <td>{{ tagihan.penggunaan.bulan }}/{{ tagihan.penggunaan.tahun }}</td>
+                <td>Rp {{ "%.2f"|format(tagihan.total_bayar) }}</td>
+                <td>
+                    {% if tagihan.status == 'Lunas' %}
+                        <span style="color: green; font-weight: bold;">{{ tagihan.status }}</span>
+                    {% else %}
+                        <span style="color: red; font-weight: bold;">{{ tagihan.status }}</span>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    {% if tagihan.status == 'Belum Bayar' %}
+                    <form action="{{ url_for('admin.bayar_tagihan', id=tagihan.id) }}" method="POST" onsubmit="return confirm('Konfirmasi pembayaran untuk tagihan ini?');">
+                        <button type="submit" class="btn btn-primary" style="background-color: #27ae60;">Tandai Lunas</button>
+                    </form>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data tagihan.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

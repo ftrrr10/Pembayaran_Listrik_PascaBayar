@@ -1,0 +1,39 @@
+{% extends "admin/layout_admin.html" %}
+
+{% block title %}Manajemen Petugas{% endblock %}
+
+{% block page_title %}Manajemen Petugas{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ url_for('admin.tambah_petugas') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Petugas</a>
+{% endblock %}
+
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Nama Lengkap</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for petugas in daftar_petugas %}
+            <tr>
+                <td>{{ petugas.username }}</td>
+                <td>{{ petugas.nama_lengkap }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('admin.edit_petugas', id=petugas.id) }}">Edit</a>
+                    <form action="{{ url_for('admin.hapus_petugas', id=petugas.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline;">
+                        <button type="submit" style="background:none; border:none; color: #E74C3C; cursor:pointer; padding:0; font-weight:500; font-family:inherit; font-size:inherit;">Hapus</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data petugas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

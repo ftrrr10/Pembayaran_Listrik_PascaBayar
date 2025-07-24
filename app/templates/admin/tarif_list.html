@@ -1,0 +1,39 @@
+{% extends "admin/layout_admin.html" %}
+
+{% block title %}Manajemen Tarif{% endblock %}
+
+{% block page_title %}Manajemen Tarif{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ url_for('admin.tambah_tarif') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Tarif</a>
+{% endblock %}
+
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th>Daya (VA)</th>
+                <th>Tarif per kWh</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tarif in daftar_tarif %}
+            <tr>
+                <td>{{ tarif.daya }}</td>
+                <td>Rp {{ "%.2f"|format(tarif.tarif_per_kwh) }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('admin.edit_tarif', id=tarif.id) }}">Edit</a>
+                    <form action="{{ url_for('admin.hapus_tarif', id=tarif.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline;">
+                        <button type="submit" style="background:none; border:none; color: #E74C3C; cursor:pointer; padding:0; font-weight:500; font-family:inherit; font-size:inherit;">Hapus</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data tarif.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

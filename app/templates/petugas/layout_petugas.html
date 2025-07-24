@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Panel Petugas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        :root { --primary-color: #27ae60; --background-color: #F7F8FC; --text-color: #333; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--background-color); }
+        .top-navbar {
+            background-color: white;
+            padding: 0 2rem;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .top-navbar .brand { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); }
+        .top-navbar .user-info a { color: #c0392b; text-decoration: none; font-weight: 500; }
+        .main-content { padding: 2rem 3rem; }
+        .content-card { background-color: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <header class="top-navbar">
+        <div class="brand"><i class="fas fa-bolt"></i> Panel Petugas</div>
+        <div class="user-info">
+            <span>Halo, {{ current_user.nama_lengkap }}!</span> | 
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </header>
+    <main class="main-content">
+        <div class="content-card">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+</html>

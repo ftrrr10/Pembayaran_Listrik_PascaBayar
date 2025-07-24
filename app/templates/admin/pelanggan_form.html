@@ -1,0 +1,74 @@
+{% extends "admin/layout_admin.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Style khusus untuk form */
+    .form-container { max-width: 700px; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+    .form-group textarea { min-height: 100px; }
+    .form-actions { margin-top: 2rem; display: flex; gap: 1rem; }
+    .btn-secondary { background-color: #ecf0f1; color: #333; }
+    .note { font-size: 0.85em; color: #888; margin-top: 0.25rem; }
+</style>
+
+<div class="form-container">
+    <form method="POST" action="" novalidate>
+        {{ form.hidden_tag() }}
+
+        <h3>Data Pelanggan</h3>
+        <div class="form-group">
+            {{ form.nomor_meter.label }}
+            {{ form.nomor_meter() }}
+        </div>
+        <div class="form-group">
+            {{ form.nama_pelanggan.label }}
+            {{ form.nama_pelanggan() }}
+        </div>
+        <div class="form-group">
+            {{ form.alamat.label }}
+            {{ form.alamat() }}
+        </div>
+        <div class="form-group">
+            {{ form.tarif_id.label }}
+            {{ form.tarif_id() }}
+        </div>
+
+        <hr style="margin: 2rem 0; border-top: 1px solid var(--border-color); border-bottom: none;">
+        
+        <h3>Detail Akun Login</h3>
+        <p class="note" style="margin-top:-1rem; margin-bottom:1.5rem;">Buat akun agar pelanggan dapat login dan melihat tagihannya.</p>
+
+        <div class="form-group">
+            {{ form.username.label }}
+            {% if 'Edit' in title and pelanggan and pelanggan.user %}
+                {{ form.username(readonly=true, style="background-color:#eee;") }}
+                <p class="note">Username tidak dapat diubah.</p>
+            {% else %}
+                {{ form.username() }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.password.label }}
+            {{ form.password() }}
+            {% if 'Edit' in title %}
+                <p class="note">Kosongkan jika tidak ingin mengubah password.</p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password() }}
+        </div>
+
+        <div class="form-actions">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('admin.list_pelanggan') }}" class="btn btn-secondary">Batal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

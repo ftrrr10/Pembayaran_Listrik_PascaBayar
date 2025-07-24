@@ -1,0 +1,41 @@
+{% extends "petugas/layout_petugas.html" %}
+
+{% block title %}Dashboard Petugas{% endblock %}
+
+{% block content %}
+<style>
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #EAEAEA; }
+    th { color: #888; text-transform: uppercase; font-size: 0.9rem; }
+    .btn-catat { background-color: var(--primary-color); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; }
+</style>
+<h2>Daftar Pelanggan</h2>
+<p>Pilih pelanggan untuk memulai pencatatan meter bulan ini.</p>
+<br>
+<table>
+    <thead>
+        <tr>
+            <th>No. Meter</th>
+            <th>Nama Pelanggan</th>
+            <th>Alamat</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pelanggan in daftar_pelanggan %}
+        <tr>
+            <td>{{ pelanggan.nomor_meter }}</td>
+            <td>{{ pelanggan.nama_pelanggan }}</td>
+            <td>{{ pelanggan.alamat }}</td>
+            <td>
+                <a href="{{ url_for('petugas.catat_meter', pelanggan_id=pelanggan.id) }}" class="btn-catat">Catat Meter</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" style="text-align:center; padding: 2rem;">Belum ada data pelanggan.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
