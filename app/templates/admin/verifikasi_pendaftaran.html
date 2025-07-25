@@ -1,0 +1,45 @@
+{% extends "admin/layout_admin.html" %}
+{% block title %}Verifikasi Pendaftaran{% endblock %}
+{% block page_title %}Verifikasi Pendaftaran{% endblock %}
+{% block content %}
+    <p style="margin-top: -1rem; margin-bottom: 2rem; color: var(--text-muted);">
+        Tinjau dan setujui pendaftaran pelanggan baru yang masuk.
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Tanggal Daftar</th>
+                <th>Nama & No. Meter</th>
+                <th>Kontak</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in daftar_pending %}
+            <tr>
+                <td>{{ item.tanggal_daftar.strftime('%d %b %Y') }}</td>
+                <td>
+                    <strong>{{ item.nama_lengkap }}</strong><br>
+                    <small>{{ item.nomor_meter }}</small>
+                </td>
+                <td>
+                    {{ item.email or '-' }}<br>
+                    <small>{{ item.no_telepon }}</small>
+                </td>
+                <td class="actions">
+                    <form action="{{ url_for('admin.setujui_pendaftaran', id=item.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="action-btn" style="background-color: #27AE60;">Setujui</button>
+                    </form>
+                    <form action="{{ url_for('admin.tolak_pendaftaran', id=item.id) }}" method="POST" style="display:inline; margin-left: 5px;">
+                        <button type="submit" class="action-btn btn-delete">Tolak</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 2rem;">Tidak ada pendaftaran yang menunggu verifikasi.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

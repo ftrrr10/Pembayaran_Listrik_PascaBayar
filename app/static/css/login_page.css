@@ -144,3 +144,26 @@ body {
     border-radius: 8px;
     text-align: center;
 }
+
+.login-card.pelanggan {
+    /* Style ini akan menimpa style .login-card default */
+    border-top: 5px solid var(--secondary-yellow);
+}
+
+.login-card.pelanggan .icon {
+    color: var(--secondary-yellow);
+}
+
+.login-card.pelanggan .submit-btn {
+    background-color: var(--secondary-yellow);
+}
+
+.login-card.pelanggan .submit-btn:hover {
+    background-color: #d9931f;
+}
+
+.login-card.pelanggan .extra-link a {
+    color: var(--secondary-yellow);
+    font-weight: 600;
+}
+

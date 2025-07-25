@@ -1,0 +1,63 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Riwayat Tagihan{% endblock %}
+
+{% block page_title %}Riwayat Tagihan{% endblock %}
+
+{% block content %}
+<p style="margin-top:-1rem; margin-bottom: 2rem; color: var(--text-muted);">
+    Berikut adalah daftar lengkap semua tagihan listrik Anda dari waktu ke waktu.
+</p>
+<table class="info-table">
+    <thead>
+        <tr>
+            <th>Periode</th>
+            <th>Total Tagihan</th>
+            <th>Status</th>
+            <th>Tanggal Bayar</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tagihan in daftar_tagihan %}
+        <tr>
+            <td>{{ tagihan.penggunaan.bulan }}/{{ tagihan.penggunaan.tahun }}</td>
+            <td>Rp {{ "{:,.2f}".format(tagihan.total_bayar).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+            <td>
+                {% if tagihan.status == 'Lunas' %}
+                    <span class="status-lunas">{{ tagihan.status }}</span>
+                {% else %}
+                    <span class="status-belum">{{ tagihan.status }}</span>
+                {% endif %}
+            </td>
+            <td>{{ tagihan.tanggal_bayar.strftime('%d %b %Y') if tagihan.tanggal_bayar else '-' }}</td>
+            <td>
+                <a href="{{ url_for('pelanggan.tagihan_detail', tagihan_id=tagihan.id) }}" style="color: var(--primary-color); font-weight: bold;">Lihat Detail</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align:center; padding: 2rem;">Anda belum memiliki riwayat tagihan.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Navigasi Paginasi -->
+<div class="pagination-container" style="margin-top: 2rem; display: flex; justify-content: center; gap: 0.5rem;">
+    <a href="{{ url_for('pelanggan.riwayat_tagihan', page=pagination.prev_num) if pagination.has_prev else '#' }}"
+       class="pagination-link {{ 'disabled' if not pagination.has_prev }}">
+        &laquo; Sebelumnya
+    </a>
+    {% for page_num in pagination.iter_pages() %}
+        <a href="{{ url_for('pelanggan.riwayat_tagihan', page=page_num) }}"
+           class="pagination-link {{ 'active' if page_num == pagination.page else '' }}">
+            {{ page_num }}
+        </a>
+    {% endfor %}
+    <a href="{{ url_for('pelanggan.riwayat_tagihan', page=pagination.next_num) if pagination.has_next else '#' }}"
+       class="pagination-link {{ 'disabled' if not pagination.has_next }}">
+        Berikutnya &raquo;
+    </a>
+</div>
+{% endblock %}

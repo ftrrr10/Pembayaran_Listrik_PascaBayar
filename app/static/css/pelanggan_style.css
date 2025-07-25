@@ -67,3 +67,257 @@ body {
 
 .status-lunas { color: #27AE60; font-weight: bold; }
 .status-belum { color: #E74C3C; font-weight: bold; }
+
+/* === STYLE BARU UNTUK HALAMAN CEK STATUS === */
+
+.form-container {
+    max-width: 550px;
+    margin: auto;
+    text-align: center; /* Pusatkan teks di dalam container */
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left; /* Jaga label tetap rata kiri */
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.flash.danger {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f8d7da;
+    color: #721c24;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.status-card {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.status-card .icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.status-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.status-card .status-text {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.status-card .details {
+    margin-top: 1rem;
+    color: var(--text-muted);
+}
+
+/* Warna berdasarkan status */
+.status-Pending {
+    background-color: #fff9e6;
+    border: 1px solid #ffe699;
+}
+.status-Pending .icon, .status-Pending .status-text { color: #F5A623; }
+
+.status-Disetujui {
+    background-color: #e9f7ef;
+    border: 1px solid #a3d9b1;
+}
+.status-Disetujui .icon, .status-Disetujui .status-text { color: #27AE60; }
+
+.status-Ditolak {
+    background-color: #fbe9e7;
+    border: 1px solid #ffab91;
+}
+.status-Ditolak .icon, .status-Ditolak .status-text { color: #E74C3C; }
+
+/* File: app/static/css/pelanggan_style.css */
+:root {
+    --primary-color: #4A90E2; /* Biru */
+    --secondary-color: #F5A623; /* Kuning */
+    --background-color: #F7F8FC;
+    --sidebar-bg: #FFFFFF;
+    --text-color: #333;
+    --text-muted: #888;
+    --border-color: #EAEAEA;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    box-sizing: border-box;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-logo {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+}
+
+.sidebar-nav { list-style: none; padding: 0 1.5rem; margin: 0; flex-grow: 1; }
+.sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+.sidebar-nav li a i { margin-right: 15px; width: 20px; }
+.sidebar-nav li a:hover { color: var(--primary-color); }
+.sidebar-nav li a.active { background-color: var(--primary-color); color: white; }
+
+.sidebar-footer {
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+.sidebar-footer p { margin: 0 0 1rem 0; color: var(--text-muted); font-size: 0.9rem; }
+.sidebar-footer a { color: #E74C3C; text-decoration: none; font-weight: bold; }
+
+.main-content {
+    flex-grow: 1;
+    margin-left: 250px;
+    padding: 2rem 3rem;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.content-header h1 { margin: 0; font-size: 2rem; }
+
+.content-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stat-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 5px solid var(--primary-color);
+}
+
+.stat-card.yellow {
+    border-left-color: var(--secondary-color);
+}
+
+.stat-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.stat-card .value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.chart-container {
+    margin-top: 3rem;
+}
+
+.chart-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* === STYLE BARU UNTUK PAGINASI === */
+
+.pagination-link {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.pagination-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: bold;
+}
+
+.pagination-link.disabled {
+    color: #ccc;
+    pointer-events: none

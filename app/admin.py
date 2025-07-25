@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, Response
 from flask_login import login_required
 from wtforms.validators import DataRequired, Length
-from .models import Tarif, Pelanggan, Users, Roles, Tagihan 
+from .models import Tarif, Pelanggan, Users, Roles, Tagihan, PendaftaranPending 
 from .forms import TarifForm, PelangganForm, PetugasForm
 from . import db
 import datetime
@@ -435,4 +435,68 @@ def unduh_laporan():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment;filename={nama_file}"}
     )
+
+@admin_bp.route('/verifikasi')
+@login_required
+def verifikasi_pendaftaran():
+    daftar_pending = PendaftaranPending.query.filter_by(status='Pending').order_by(PendaftaranPending.tanggal_daftar).all()
+    return render_template('admin/verifikasi_pendaftaran.html', 
+                           title='Verifikasi Pendaftaran',
+                           daftar_pending=daftar_pending)
+
+@admin_bp.route('/verifikasi/setujui/<int:id>', methods=['POST'])
+@login_required
+def setujui_pendaftaran(id):
+    pendaftaran = PendaftaranPending.query.get_or_404(id)
+    
+    # Buat username & password sementara
+    username = pendaftaran.nama_lengkap.split()[0].lower() + pendaftaran.nomor_meter[-4:]
+    password_sementara = 'wattbill123'
+    
+    # Cek jika username sudah ada, tambahkan angka acak
+    if Users.query.filter_by(username=username).first():
+        import random
+        username = username + str(random.randint(10,99))
+
+    # --- SIMPAN DETAIL LOGIN KE PENDAFTARAN PENDING ---
+    pendaftaran.generated_username = username
+    pendaftaran.generated_password = password_sementara
+    # -------------------------------------------------
+    
+    # Buat user dan pelanggan baru
+    role_pelanggan = Roles.query.filter_by(nama_role='pelanggan').first_or_404()
+    user_baru = Users(username=username, nama_lengkap=pendaftaran.nama_lengkap, role_id=role_pelanggan.id)
+    user_baru.set_password(password_sementara)
+    
+    tarif_default = Tarif.query.first()
+    if not tarif_default:
+        flash('Tidak ada data tarif di sistem. Tambahkan tarif terlebih dahulu.', 'danger')
+        return redirect(url_for('admin.verifikasi_pendaftaran'))
+
+    pelanggan_baru = Pelanggan(
+        nomor_meter=pendaftaran.nomor_meter,
+        nama_pelanggan=pendaftaran.nama_lengkap,
+        alamat=pendaftaran.alamat,
+        email=pendaftaran.email,
+        no_telepon=pendaftaran.no_telepon,
+        tarif_id=tarif_default.id,
+        user=user_baru
+    )
+    
+    pendaftaran.status = 'Disetujui'
+    db.session.add(user_baru)
+    db.session.add(pelanggan_baru)
+    db.session.commit()
+    
+    flash(f'Pendaftaran untuk {pendaftaran.nama_lengkap} berhasil disetujui.', 'success')
+    return redirect(url_for('admin.verifikasi_pendaftaran'))
+
+@admin_bp.route('/verifikasi/tolak/<int:id>', methods=['POST'])
+@login_required
+def tolak_pendaftaran(id):
+    pendaftaran = PendaftaranPending.query.get_or_404(id)
+    pendaftaran.status = 'Ditolak'
+    db.session.commit()
+    flash(f'Pendaftaran untuk {pendaftaran.nama_lengkap} telah ditolak.', 'info')
+    return redirect(url_for('admin.verifikasi_pendaftaran'))
 

@@ -1,0 +1,125 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Bantuan & Dukungan{% endblock %}
+
+{% block page_title %}Bantuan & Dukungan{% endblock %}
+
+{% block content %}
+<style>
+    /* Style khusus untuk halaman bantuan */
+    .bantuan-container {
+        max-width: 800px;
+    }
+    .bantuan-section {
+        margin-bottom: 2.5rem;
+    }
+    .bantuan-section h3 {
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .faq-item {
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+    .faq-question {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .faq-question i {
+        transition: transform 0.3s ease;
+    }
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        color: #555;
+        line-height: 1.6;
+    }
+    .faq-answer p {
+        margin-top: 0;
+        padding-bottom: 1rem;
+    }
+    /* Style saat FAQ aktif */
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+    .faq-item.active .faq-answer {
+        max-height: 200px; /* Sesuaikan jika jawaban lebih panjang */
+    }
+</style>
+
+<div class="bantuan-container">
+    <!-- Bagian Kontak -->
+    <div class="bantuan-section">
+        <h3>Hubungi Kami</h3>
+        <p>Jika Anda memerlukan bantuan lebih lanjut atau memiliki pertanyaan yang tidak terjawab di bawah, jangan ragu untuk menghubungi tim dukungan kami.</p>
+        <p><strong>Email:</strong> support@wattbill.com</p>
+        <p><strong>Telepon:</strong> (021) 123-4567</p>
+        <p><strong>Jam Operasional:</strong> Senin - Jumat, 08:00 - 17:00 WIB</p>
+    </div>
+
+    <!-- Bagian FAQ -->
+    <div class="bantuan-section">
+        <h3>Pertanyaan yang Sering Diajukan (FAQ)</h3>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Bagaimana cara membaca rincian tagihan saya?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Anda dapat melihat rincian lengkap tagihan dengan masuk ke menu "Riwayat Tagihan", lalu klik tombol "Lihat Detail" pada tagihan yang ingin Anda periksa. Di sana akan tertera meter awal, meter akhir, total pemakaian, dan rincian perhitungannya.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Kapan tagihan baru saya akan terbit setiap bulannya?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Tagihan baru akan dibuat setelah petugas kami melakukan pencatatan meter di lokasi Anda. Umumnya, proses pencatatan dilakukan antara tanggal 20 hingga 25 setiap bulannya, dan tagihan akan langsung tersedia di portal setelahnya.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span>Bagaimana cara saya mengubah password?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>Anda dapat mengubah password Anda melalui menu "Profil Saya". Di sana, Anda akan menemukan form "Ganti Password" di mana Anda perlu memasukkan password lama dan password baru Anda.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript untuk fungsionalitas accordion FAQ
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            // Tutup semua item lain sebelum membuka yang ini
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            // Buka atau tutup item yang diklik
+            item.classList.toggle('active');
+        });
+    });
+</script>
+{% endblock %}

@@ -9,14 +9,29 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pelanggan_style.css') }}">
 </head>
 <body>
-    <header class="top-navbar">
-        <a href="{{ url_for('pelanggan.dashboard') }}" class="brand"><i class="fas fa-bolt"></i> WattBill</a>
-        <div class="user-info">
-            <span>Halo, {{ current_user.nama_lengkap }}!</span> | 
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/wattbill.png') }}" alt="Logo WattBill" class="sidebar-logo">
         </div>
-    </header>
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li><a href="{{ url_for('pelanggan.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('pelanggan.riwayat_tagihan') }}"><i class="fas fa-history"></i> Riwayat Tagihan</a></li>
+            <li><a href="{{ url_for('pelanggan.profil') }}"><i class="fas fa-user-edit"></i> Profil Saya</a></li>
+            <li><a href="{{ url_for('pelanggan.informasi_tarif') }}"><i class="fas fa-dollar-sign"></i> Informasi Tarif</a></li>
+            <li><a href="{{ url_for('pelanggan.bantuan') }}"><i class="fas fa-question-circle"></i> Bantuan</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <p>Login sebagai: <strong>{{ current_user.username }}</strong></p>
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <!-- Konten Utama -->
     <main class="main-content">
+        <div class="content-header">
+            <h1>{% block page_title %}{% endblock %}</h1>
+        </div>
         <div class="content-card">
             {% block content %}{% endblock %}
         </div>

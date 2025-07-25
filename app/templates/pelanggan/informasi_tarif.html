@@ -1,0 +1,33 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Informasi Tarif{% endblock %}
+
+{% block page_title %}Informasi Tarif{% endblock %}
+
+{% block content %}
+    <p style="margin-top:-1rem; margin-bottom: 2rem; color: var(--text-muted);">
+        Berikut adalah daftar referensi tarif listrik yang berlaku.
+    </p>
+    <table class="info-table">
+        <thead>
+            <tr>
+                <th>Daya (VA)</th>
+                <th>Tarif per kWh</th>
+                <th>Deskripsi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tarif in daftar_tarif %}
+            <tr>
+                <td style="font-weight: bold;">{{ "{:,}".format(tarif.daya).replace(',', '.') }} VA</td>
+                <td style="color: var(--primary-color);">Rp {{ "{:,.2f}".format(tarif.tarif_per_kwh).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                <td>{{ tarif.deskripsi or '-' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" style="text-align:center; padding: 2rem;">Belum ada data tarif.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

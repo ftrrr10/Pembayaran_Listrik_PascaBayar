@@ -1,0 +1,65 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Pendaftaran Pelanggan{% endblock %}
+
+{% block content %}
+<style>
+    .form-container { max-width: 500px; margin: auto; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+    .form-group textarea { min-height: 100px; }
+    .form-actions { margin-top: 2rem; }
+    .flash { padding: 1rem; margin-bottom: 1rem; border-radius: 8px; text-align: center; }
+    .flash.danger { background-color: #f8d7da; color: #721c24; }
+    .flash.success { background-color: #d4edda; color: #155724; }
+</style>
+
+<div class="form-container">
+    <h2>Pendaftaran Pelanggan Baru</h2>
+    <p style="color: var(--text-muted);">Ajukan pendaftaran Anda. Data akan diverifikasi oleh admin sebelum akun diaktifkan.</p>
+    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <!-- === FIELD FORM YANG SUDAH DIPERBARUI === -->
+        <div class="form-group">
+            {{ form.nama_lengkap.label }}
+            {{ form.nama_lengkap() }}
+        </div>
+        <div class="form-group">
+            {{ form.alamat.label }}
+            {{ form.alamat() }}
+        </div>
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email() }}
+        </div>
+        <div class="form-group">
+            {{ form.no_telepon.label }}
+            {{ form.no_telepon() }}
+        </div>
+        <div class="form-group">
+            {{ form.nomor_meter.label }}
+            {{ form.nomor_meter() }}
+        </div>
+        <!-- ======================================= -->
+
+        <div class="form-actions">
+            {{ form.submit(class="btn btn-primary", style="width: 100%; padding: 1rem;") }}
+        </div>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem;">
+        Sudah punya akun? <a href="{{ url_for('auth.login_pelanggan') }}">Masuk di sini</a>.
+    </p>
+</div>
+{% endblock %}

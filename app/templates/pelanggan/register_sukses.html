@@ -1,0 +1,25 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Pendaftaran Berhasil{% endblock %}
+
+{% block content %}
+<style>
+    .success-container { text-align: center; max-width: 600px; margin: auto; }
+    .success-icon { font-size: 4rem; color: #27AE60; margin-bottom: 1.5rem; }
+    .token-box { background-color: #f8f9fa; border: 1px dashed #ccc; padding: 1rem; border-radius: 8px; margin: 1.5rem 0; }
+    .token-box p { margin: 0; font-size: 1.2rem; font-weight: bold; color: var(--text-dark); }
+</style>
+
+<div class="success-container">
+    <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+    <h2>Pendaftaran Anda Telah Diterima!</h2>
+    <p style="color: var(--text-muted);">
+        Terima kasih telah mendaftar. Data Anda akan segera diverifikasi oleh admin. Silakan simpan nomor referensi di bawah ini untuk mengecek status pendaftaran Anda.
+    </p>
+    <div class="token-box">
+        <p>{{ token }}</p>
+    </div>
+    <a href="{{ url_for('pelanggan.cek_status') }}" class="btn btn-primary">Cek Status Sekarang</a>
+    <a href="{{ url_for('main.index') }}" style="display: block; margin-top: 1rem;">Kembali ke Halaman Utama</a>
+</div>
+{% endblock %}

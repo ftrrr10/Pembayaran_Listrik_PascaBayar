@@ -1,0 +1,60 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Cek Status Pendaftaran{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Cek Status Pendaftaran</h2>
+    <p style="color: var(--text-muted);">Masukkan nomor referensi yang Anda dapatkan saat pendaftaran.</p>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash danger">{{ messages[0][1] }}</div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="">
+        <div class="form-group">
+            <label for="token">Nomor Referensi</label>
+            <input type="text" name="token" id="token" class="form-input" required>
+        </div>
+        <button type="submit" class="btn-primary">Cek Status</button>
+    </form>
+
+    {% if pendaftaran %}
+    <div class="status-card status-{{ pendaftaran.status }}">
+        <div class="icon">
+            {% if pendaftaran.status == 'Pending' %}
+                <i class="fas fa-hourglass-half"></i>
+            {% elif pendaftaran.status == 'Disetujui' %}
+                <i class="fas fa-check-circle"></i>
+            {% else %}
+                <i class="fas fa-times-circle"></i>
+            {% endif %}
+        </div>
+        <h4>Status Pendaftaran Anda:</h4>
+        <p class="status-text">{{ pendaftaran.status }}</p>
+        <p class="details">
+            Nomor Meter: {{ pendaftaran.nomor_meter }} | Nama: {{ pendaftaran.nama_lengkap }}
+        </p>
+
+        <!-- === BAGIAN BARU UNTUK MENAMPILKAN DETAIL LOGIN === -->
+        {% if pendaftaran.status == 'Disetujui' %}
+            <div style="background-color: #e9f5ff; padding: 1rem; border-radius: 8px; margin-top: 1.5rem; text-align: left;">
+                <h5 style="margin-top: 0;">Akun Anda Telah Aktif!</h5>
+                <p>Gunakan detail di bawah ini untuk login pertama kali:</p>
+                <p><strong>Username:</strong> {{ pendaftaran.generated_username }}</p>
+                <p><strong>Password Sementara:</strong> {{ pendaftaran.generated_password }}</p>
+                <p style="font-size: 0.9em; color: #E74C3C; font-weight: bold;">
+                    <i class="fas fa-exclamation-triangle"></i> Segera ganti password Anda setelah login.
+                </p>
+            </div>
+            <a href="{{ url_for('auth.login_pelanggan') }}" class="btn-primary" style="margin-top: 1.5rem; display: inline-block; width: auto;">Login Sekarang</a>
+        {% elif pendaftaran.status == 'Ditolak' %}
+            <p style="margin-top: 1rem;">Mohon maaf, pendaftaran Anda ditolak. Silakan hubungi layanan pelanggan untuk informasi lebih lanjut.</p>
+        {% endif %}
+        <!-- ============================================= -->
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

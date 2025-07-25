@@ -1,0 +1,64 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Profil Saya{% endblock %}
+
+{% block page_title %}Profil Saya{% endblock %}
+
+{% block content %}
+    {# Tampilkan pesan flash di atas #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}" style="padding: 1rem; margin-bottom: 1.5rem; border-radius: 8px; background-color: {{ '#d4edda' if category == 'success' else '#f8d7da' }}; color: {{ '#155724' if category == 'success' else '#721c24' }};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Kolom Kiri: Edit Profil -->
+        <div>
+            <h3>Edit Profil</h3>
+            <p style="color: var(--text-muted);">Perbarui informasi kontak Anda.</p>
+            <form method="POST" action="" novalidate>
+                {{ profil_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ profil_form.nama_lengkap.label }}
+                    {{ profil_form.nama_lengkap(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ profil_form.email.label }}
+                    {{ profil_form.email(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ profil_form.no_telepon.label }}
+                    {{ profil_form.no_telepon(class="form-input") }}
+                </div>
+                {{ profil_form.submit_profil(class="btn-primary") }}
+            </form>
+        </div>
+
+        <!-- Kolom Kanan: Ganti Password -->
+        <div>
+            <h3>Ganti Password</h3>
+            <p style="color: var(--text-muted);">Jaga keamanan akun Anda.</p>
+            <form method="POST" action="" novalidate>
+                {{ password_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ password_form.password_lama.label }}
+                    {{ password_form.password_lama(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ password_form.password_baru.label }}
+                    {{ password_form.password_baru(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ password_form.konfirmasi_password.label }}
+                    {{ password_form.konfirmasi_password(class="form-input") }}
+                </div>
+                {{ password_form.submit_password(class="btn-primary") }}
+            </form>
+        </div>
+    </div>
+{% endblock %}

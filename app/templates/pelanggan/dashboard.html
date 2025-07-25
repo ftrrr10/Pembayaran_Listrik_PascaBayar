@@ -1,43 +1,82 @@
 {% extends "pelanggan/layout_pelanggan.html" %}
 
-{% block title %}Dashboard Saya{% endblock %}
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-    <h2>Riwayat Tagihan Anda</h2>
-    <p style="color: var(--text-muted);">Berikut adalah daftar semua tagihan listrik Anda.</p>
-    <br>
-    <table class="info-table">
-        <thead>
-            <tr>
-                <th>Periode</th>
-                <th>Total Tagihan</th>
-                <th>Status</th>
-                <th>Tanggal Bayar</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for tagihan in daftar_tagihan %}
-            <tr>
-                <td>{{ tagihan.penggunaan.bulan }}/{{ tagihan.penggunaan.tahun }}</td>
-                <td>Rp {{ "{:,.2f}".format(tagihan.total_bayar).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
-                <td>
-                    {% if tagihan.status == 'Lunas' %}
-                        <span class="status-lunas">{{ tagihan.status }}</span>
-                    {% else %}
-                        <span class="status-belum">{{ tagihan.status }}</span>
-                    {% endif %}
-                </td>
-                <td>{{ tagihan.tanggal_bayar.strftime('%d %B %Y') if tagihan.tanggal_bayar else '-' }}</td>
-                <td>
-                    <a href="{{ url_for('pelanggan.tagihan_detail', tagihan_id=tagihan.id) }}" style="color: var(--primary-color); font-weight: bold;">Lihat Detail</a>
-                </td>
-            </tr>
+    <h3>Selamat Datang, {{ current_user.nama_lengkap }}!</h3>
+    <p style="color: var(--text-muted);">Berikut adalah ringkasan penggunaan listrik Anda.</p>
+    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+    <div class="stat-cards-container">
+        <div class="stat-card">
+            <h3>Tagihan Terakhir</h3>
+            {% if tagihan_terakhir %}
+                <p class="value">Rp {{ "{:,.0f}".format(tagihan_terakhir.total_bayar).replace(",", ".") }}</p>
             {% else %}
-            <tr>
-                <td colspan="5" style="text-align:center; padding: 2rem;">Anda belum memiliki riwayat tagihan.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                <p class="value">-</p>
+            {% endif %}
+        </div>
+        <div class="stat-card yellow">
+            <h3>Rata-Rata Penggunaan (6 Bln)</h3>
+            <p class="value">{{ "%.0f"|format(rata_rata_penggunaan) }} kWh</p>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2>Grafik Penggunaan Listrik (12 Bulan Terakhir)</h2>
+        <div style="height: 350px;">
+            <canvas id="usageChart"></canvas>
+        </div>
+    </div>
+
+    <!-- === SCRIPT UNTUK MENAMPILKAN GRAFIK === -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('usageChart').getContext('2d');
+            
+            const chartLabels = JSON.parse({{ chart_labels|safe }});
+            const chartValues = JSON.parse({{ chart_values|safe }});
+
+            new Chart(ctx, {
+                type: 'line', // Menggunakan grafik garis
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Penggunaan (kWh)',
+                        data: chartValues,
+                        backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                        borderColor: 'rgba(74, 144, 226, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(74, 144, 226, 1)',
+                        pointRadius: 4,
+                        tension: 0.3 // Membuat garis sedikit melengkung
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return value + ' kWh'; }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Penggunaan: ' + context.parsed.y + ' kWh';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock %}

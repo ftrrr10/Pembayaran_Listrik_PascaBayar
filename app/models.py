@@ -87,3 +87,17 @@ class Tagihan(db.Model):
     status = db.Column(db.String(50), nullable=False, default='Belum Bayar')
     tanggal_tagihan = db.Column(db.Date, nullable=False)
     tanggal_bayar = db.Column(db.Date)
+
+class PendaftaranPending(db.Model):
+    __tablename__ = 'pendaftaran_pending'
+    id = db.Column(db.Integer, primary_key=True)
+    nama_lengkap = db.Column(db.String(150), nullable=False)
+    alamat = db.Column(db.Text, nullable=False)
+    email = db.Column(db.String(120))
+    no_telepon = db.Column(db.String(20))
+    nomor_meter = db.Column(db.String(100), unique=True, nullable=False)
+    tanggal_daftar = db.Column(db.Date, nullable=False)
+    token = db.Column(db.String(32), unique=True, nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='Pending')
+    generated_username = db.Column(db.String(100), nullable=True)
+    generated_password = db.Column(db.String(100), nullable=True)
