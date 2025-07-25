@@ -9,6 +9,14 @@
 {% endblock %}
 
 {% block content %}
+    
+    <div class="page-controls">
+        <form class="search-form" method="GET" action="{{ url_for('admin.list_pelanggan') }}">
+            <input type="search" name="q" class="search-input" placeholder="Cari pelanggan..." value="{{ query or '' }}">
+            <button type="submit" class="btn btn-primary">Cari</button>
+        </form>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -43,9 +51,42 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data pelanggan.</td>
+                <td colspan="6" style="text-align:center; padding: 2rem; color: var(--text-muted);">
+                    {% if query %}
+                        Pelanggan dengan kata kunci "{{ query }}" tidak ditemukan.
+                    {% else %}
+                        Belum ada data pelanggan.
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- === NAVIGASI PAGINASI BARU === -->
+    <div class="pagination-container">
+        <!-- Tombol "Sebelumnya" -->
+        <a href="{{ url_for('admin.list_pelanggan', page=pagination.prev_num, q=query) if pagination.has_prev else '#' }}"
+           class="pagination-link {{ 'disabled' if not pagination.has_prev }}">
+            &laquo; Sebelumnya
+        </a>
+
+        <!-- Nomor Halaman -->
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                <a href="{{ url_for('admin.list_pelanggan', page=page_num, q=query) }}"
+                   class="pagination-link {{ 'active' if page_num == pagination.page else '' }}">
+                    {{ page_num }}
+                </a>
+            {% else %}
+                <span class="pagination-link disabled">...</span>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Tombol "Berikutnya" -->
+        <a href="{{ url_for('admin.list_pelanggan', page=pagination.next_num, q=query) if pagination.has_next else '#' }}"
+           class="pagination-link {{ 'disabled' if not pagination.has_next }}">
+            Berikutnya &raquo;
+        </a>
+    </div>
 {% endblock %}

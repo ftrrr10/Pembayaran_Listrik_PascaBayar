@@ -1,0 +1,30 @@
+{% extends "admin/layout_admin.html" %}
+
+{% block title %}Laporan Tagihan{% endblock %}
+
+{% block page_title %}Laporan Tagihan{% endblock %}
+
+{% block content %}
+<p style="margin-top: -1rem; margin-bottom: 2rem; color: var(--text-muted);">
+    Pilih rentang tanggal untuk membuat dan mengunduh laporan tagihan dalam format CSV.
+</p>
+
+<div class="form-container">
+    <!-- Form ini akan mengirim data ke rute unduh_laporan yang akan kita buat -->
+    <form method="POST" action="{{ url_for('admin.unduh_laporan')}}">
+        <div class="form-group">
+            <label for="tanggal_awal">Tanggal Awal</label>
+            <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label for="tanggal_akhir">Tanggal Akhir</label>
+            <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-input" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-download"></i> Unduh Laporan
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

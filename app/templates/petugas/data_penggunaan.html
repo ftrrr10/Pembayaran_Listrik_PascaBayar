@@ -1,0 +1,47 @@
+{% extends "petugas/layout_petugas.html" %}
+
+{% block title %}Riwayat Penggunaan{% endblock %}
+
+{% block page_title %}Riwayat Penggunaan{% endblock %}
+
+{% block content %}
+    <div class="search-container">
+        <p style="margin-top:0; color: var(--text-muted);">Masukkan nama atau nomor meter pelanggan untuk melihat riwayat penggunaannya.</p>
+        <form method="GET" action="{{ url_for('petugas.data_penggunaan') }}">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="search" name="q" placeholder="Cari pelanggan..." value="{{ query or '' }}">
+            </div>
+            <button type="submit" class="btn-search">Tampilkan Riwayat</button>
+        </form>
+    </div>
+
+    {% if query %}
+    <table>
+        <thead>
+            <tr>
+                <th>Periode</th>
+                <th>Meter Awal</th>
+                <th>Meter Akhir</th>
+                <th>Total Pemakaian (kWh)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for penggunaan in daftar_penggunaan %}
+            <tr>
+                <td>{{ penggunaan.bulan }}/{{ penggunaan.tahun }}</td>
+                <td>{{ "{:,}".format(penggunaan.meter_awal).replace(',', '.') }}</td>
+                <td>{{ "{:,}".format(penggunaan.meter_akhir).replace(',', '.') }}</td>
+                <td><strong>{{ "{:,}".format(penggunaan.meter_akhir - penggunaan.meter_awal).replace(',', '.') }}</strong></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 2rem;">
+                    Data penggunaan untuk "{{ query }}" tidak ditemukan.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+{% endblock %}

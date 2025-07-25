@@ -1,0 +1,69 @@
+:root {
+    --primary-color: #4A90E2;
+    --background-color: #F7F8FC;
+    --text-color: #333;
+    --text-muted: #888;
+    --border-color: #EAEAEA;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.top-navbar {
+    background-color: white;
+    padding: 0 2rem;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.top-navbar .brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.top-navbar .user-info a {
+    color: #c0392b;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.main-content {
+    padding: 2rem 3rem;
+}
+
+.content-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Style untuk tabel */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.info-table thead th {
+    text-align: left;
+    padding: 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color);
+}
+.info-table tbody td {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-lunas { color: #27AE60; font-weight: bold; }
+.status-belum { color: #E74C3C; font-weight: bold; }

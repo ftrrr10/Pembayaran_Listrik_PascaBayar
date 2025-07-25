@@ -1,0 +1,64 @@
+{% extends "petugas/layout_petugas.html" %}
+
+{% block title %}Pencatatan Meter{% endblock %}
+
+{% block page_title %}Pencatatan Meter{% endblock %}
+
+{% block content %}
+    <div class="search-container">
+        <form method="GET" action="{{ url_for('petugas.pencatatan_meter') }}">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="search" name="q" placeholder="Cari berdasarkan nama, no. meter, atau no. telepon..." value="{{ query or '' }}">
+            </div>
+            <button type="submit" class="btn-search">Cari</button>
+        </form>
+    </div>
+
+    <table class="info-table">
+        <thead>
+            <tr>
+                <th>No. Meter</th>
+                <th>Nama Pelanggan</th>
+                <th>Alamat</th>
+                <th style="width: 15%;">Status Bulan Ini</th>
+                <th style="width: 15%;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pelanggan in daftar_pelanggan %}
+            <tr>
+                <td><strong>{{ pelanggan.nomor_meter }}</strong></td>
+                <td>{{ pelanggan.nama_pelanggan }}</td>
+                <td>{{ pelanggan.alamat }}</td>
+                <td>
+                    {% if pelanggan.id in id_tercatat %}
+                        <span class="status-label status-sudah">Sudah Dicatat</span>
+                    {% else %}
+                        <span class="status-label status-belum">Belum Dicatat</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if pelanggan.id not in id_tercatat %}
+                        <a href="{{ url_for('petugas.catat_meter', pelanggan_id=pelanggan.id) }}" class="action-btn btn-catat">
+                            <i class="fas fa-edit"></i> Catat
+                        </a>
+                    {% else %}
+                        <span class="action-done">Selesai</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align:center; padding: 2rem;">
+                    {% if query %}
+                        Pelanggan dengan kata kunci "{{ query }}" tidak ditemukan.
+                    {% else %}
+                        Belum ada data pelanggan.
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

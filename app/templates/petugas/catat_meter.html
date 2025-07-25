@@ -2,6 +2,8 @@
 
 {% block title %}Catat Meter - {{ pelanggan.nama_pelanggan }}{% endblock %}
 
+{% block page_title %}Catat Meter{% endblock %}
+
 {% block content %}
 <style>
     .info-box { background-color: #e9f5ff; border-left: 5px solid #3498db; padding: 1rem; margin-bottom: 2rem; border-radius: 5px; }
@@ -11,17 +13,25 @@
     .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
     .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
     .form-actions { margin-top: 2rem; display: flex; gap: 1rem; }
-    .btn-secondary { background-color: #ecf0f1; color: #333; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 8px; }
+    .btn-secondary { background-color: #ecf0f1; color: #333; padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: bold; }
     .flash.danger { background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+    /* Style untuk pesan error di bawah input */
+    .validation-error {
+        color: #E74C3C;
+        font-size: 0.9em;
+        display: block;
+        margin-top: 0.25rem;
+    }
 </style>
 
-<h2>Catat Penggunaan Meter</h2>
-<hr>
+<p style="margin-top:-1rem; margin-bottom: 2rem; font-size: 1.1rem;">
+    Anda sedang melakukan pencatatan untuk periode: <strong>{{ periode }}</strong>
+</p>
 
 <div class="info-box">
     <p><strong>Nama Pelanggan:</strong> {{ pelanggan.nama_pelanggan }}</p>
     <p><strong>Nomor Meter:</strong> {{ pelanggan.nomor_meter }}</p>
-    <p><strong>Meteran Awal Bulan Ini (diambil dari bulan lalu):</strong> <strong>{{ meter_awal }}</strong></p>
+    <p><strong>Meteran Awal Bulan Ini (dari bulan lalu):</strong> <strong>{{ meter_awal }}</strong></p>
 </div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,10 +50,17 @@
         <div class="form-group">
             {{ form.meter_akhir.label }}
             {{ form.meter_akhir() }}
+            
+            <!-- === BAGIAN PENTING YANG DITAMBAHKAN === -->
+            {% for error in form.meter_akhir.errors %}
+                <span class="validation-error">{{ error }}</span>
+            {% endfor %}
+            <!-- ======================================= -->
+
         </div>
         <div class="form-actions">
-            {{ form.submit(class="btn-catat") }}
-            <a href="{{ url_for('petugas.dashboard') }}" class="btn-secondary">Batal</a>
+            {{ form.submit(class="btn-search") }}
+            <a href="{{ url_for('petugas.pencatatan_meter') }}" class="btn-secondary">Batal</a>
         </div>
     </form>
 </div>

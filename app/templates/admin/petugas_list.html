@@ -9,6 +9,14 @@
 {% endblock %}
 
 {% block content %}
+    <!-- === KOTAK PENCARIAN BARU === -->
+    <div class="page-controls">
+        <form class="search-form" method="GET" action="{{ url_for('admin.list_petugas') }}">
+            <input type="search" name="q" class="search-input" placeholder="Cari username atau nama..." value="{{ query or '' }}">
+            <button type="submit" class="btn btn-primary">Cari</button>
+        </form>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -22,22 +30,18 @@
         <tbody>
             {% for staf in daftar_petugas %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td>{{ pagination.first + loop.index - 1 }}</td>
                 <td>{{ staf.username }}</td>
                 <td>{{ staf.nama_lengkap }}</td>
                 <td>
-                    {# Tampilkan nama role dengan huruf kapital di awal #}
                     <span style="font-weight: bold; color: {{ '#4A90E2' if staf.role.nama_role == 'admin' else '#333' }};">
                         {{ staf.role.nama_role.capitalize() }}
                     </span>
                 </td>
                 <td class="actions">
-                    {# --- KONDISI PENTING DI SINI --- #}
                     {% if staf.role.nama_role == 'admin' %}
-                        {# Jika user adalah admin, tampilkan teks nonaktif #}
                         <span style="color: var(--text-muted); font-style: italic;">Tidak tersedia</span>
                     {% else %}
-                        {# Jika user adalah petugas, tampilkan tombol seperti biasa #}
                         <a href="{{ url_for('admin.edit_petugas', id=staf.id) }}" class="action-btn btn-edit">Edit</a>
                         <form action="{{ url_for('admin.hapus_petugas', id=staf.id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin?');" style="display:inline; margin-left: 5px;">
                             <button type="submit" class="action-btn btn-delete">Hapus</button>
@@ -47,9 +51,39 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">Belum ada data staf.</td>
+                <td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">
+                    {% if query %}
+                        Staf dengan kata kunci "{{ query }}" tidak ditemukan.
+                    {% else %}
+                        Belum ada data staf.
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- === NAVIGASI PAGINASI BARU === -->
+    <div class="pagination-container">
+        <a href="{{ url_for('admin.list_petugas', page=pagination.prev_num, q=query) if pagination.has_prev else '#' }}"
+           class="pagination-link {{ 'disabled' if not pagination.has_prev }}">
+            &laquo; Sebelumnya
+        </a>
+
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                <a href="{{ url_for('admin.list_petugas', page=page_num, q=query) }}"
+                   class="pagination-link {{ 'active' if page_num == pagination.page else '' }}">
+                    {{ page_num }}
+                </a>
+            {% else %}
+                <span class="pagination-link disabled">...</span>
+            {% endif %}
+        {% endfor %}
+
+        <a href="{{ url_for('admin.list_petugas', page=pagination.next_num, q=query) if pagination.has_next else '#' }}"
+           class="pagination-link {{ 'disabled' if not pagination.has_next }}">
+            Berikutnya &raquo;
+        </a>
+    </div>
 {% endblock %}

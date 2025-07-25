@@ -2,33 +2,147 @@
 
 {% block title %}Dashboard{% endblock %}
 
-{% block page_title %}
-    Dashboard
-{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-    <p>Selamat datang! Pilih menu di samping untuk mengelola data sistem.</p>
-
-    <style>
-        /* Style ini hanya berlaku untuk halaman dashboard */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .menu-item { background: white; padding: 1.5rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-decoration: none; color: #333; transition: transform 0.2s, box-shadow 0.2s; }
-        .menu-item:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
-        .menu-item h2 { margin-top: 0; color: var(--primary-bg); }
-    </style>
-
-    <div class="menu-grid">
-        <a href="{{ url_for('admin.list_tarif') }}" class="menu-item">
-            <h2><i class="fas fa-dollar-sign"></i> Manajemen Tarif</h2>
-            <p>Tambah, edit, atau hapus data tarif listrik.</p>
-        </a>
-        <a href="{{ url_for('admin.list_pelanggan') }}" class="menu-item">
-            <h2><i class="fas fa-users"></i> Manajemen Pelanggan</h2>
-            <p>Kelola data pelanggan terdaftar.</p>
-        </a>
-        <a href="#" class="menu-item">
-            <h2><i class="fas fa-user-tie"></i> Manajemen Petugas</h2>
-            <p>Kelola akun untuk petugas pencatat meter.</p>
-        </a>
+    <div class="stat-cards-container">
+        <!-- (Kartu Statistik Anda tetap sama) -->
+        <div class="stat-card revenue">
+            <div class="icon"><i class="fas fa-wallet"></i></div>
+            <div class="info">
+                <h3>Pendapatan Bulan Ini</h3>
+                <p class="value">Rp {{ "{:,.0f}".format(total_pendapatan_bulan_ini).replace(",", ".") }}</p>
+            </div>
+        </div>
+        <div class="stat-card unpaid">
+            <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="info">
+                <h3>Tagihan Belum Lunas</h3>
+                <p class="value">{{ tagihan_belum_lunas }}</p>
+            </div>
+        </div>
+        <div class="stat-card customers">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <div class="info">
+                <h3>Total Pelanggan</h3>
+                <p class="value">{{ total_pelanggan }}</p>
+            </div>
+        </div>
+        <div class="stat-card officers">
+            <div class="icon"><i class="fas fa-user-tie"></i></div>
+            <div class="info">
+                <h3>Total Petugas</h3>
+                <p class="value">{{ total_petugas }}</p>
+            </div>
+        </div>
     </div>
+
+    <!-- === BAGIAN BARU UNTUK GRAFIK === -->
+    <div class="dashboard-section">
+        <h2>Grafik Tagihan (6 Bulan Terakhir)</h2>
+        <div class="content-card">
+            <canvas id="billingChart"></canvas>
+        </div>
+    </div>
+    <!-- =============================== -->
+
+    <div class="dashboard-section">
+        <h2>Tagihan Terbaru Belum Lunas</h2>
+        <table>
+            <!-- (Tabel Tagihan Terbaru Anda tetap sama) -->
+            <thead>
+                <tr>
+                    <th>ID Tagihan</th>
+                    <th>Nama Pelanggan</th>
+                    <th>Periode</th>
+                    <th>Total Bayar</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tagihan in tagihan_terbaru %}
+                <tr>
+                    <td>#{{ tagihan.id }}</td>
+                    <td>{{ tagihan.penggunaan.pelanggan.nama_pelanggan }}</td>
+                    <td>{{ tagihan.penggunaan.bulan }}/{{ tagihan.penggunaan.tahun }}</td>
+                    <td>Rp {{ "{:,.0f}".format(tagihan.total_bayar).replace(",", ".") }}</td>
+                    <td class="actions">
+                        <form action="{{ url_for('admin.bayar_tagihan', id=tagihan.id) }}" method="POST" onsubmit="return confirm('Konfirmasi pembayaran?');">
+                            <button type="submit" class="action-btn" style="background-color: #27ae60;">Tandai Lunas</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-muted);">
+                        Tidak ada tagihan yang belum lunas saat ini.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- === SCRIPT UNTUK MENAMPILKAN GRAFIK === -->
+    <!-- 1. Impor library Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 2. Kode untuk membuat grafik -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('billingChart').getContext('2d');
+            
+            // Ambil data dari variabel yang dikirim oleh Python
+            const chartLabels = JSON.parse({{ chart_labels|safe }});
+            const chartValues = JSON.parse({{ chart_values|safe }});
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Total Tagihan (Rp)',
+                        data: chartValues,
+                        backgroundColor: 'rgba(74, 144, 226, 0.6)', // Warna biru semi-transparan
+                        borderColor: 'rgba(74, 144, 226, 1)', // Warna biru solid
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                // Format angka di sumbu Y menjadi format Rupiah
+                                callback: function(value, index, values) {
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                // Format angka di tooltip menjadi format Rupiah
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += 'Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <!-- ===================================== -->
 {% endblock %}

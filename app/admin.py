@@ -1,9 +1,15 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request, Response
 from flask_login import login_required
 from wtforms.validators import DataRequired, Length
-from .models import Tarif, Pelanggan, Users, Roles
+from .models import Tarif, Pelanggan, Users, Roles, Tagihan 
 from .forms import TarifForm, PelangganForm, PetugasForm
 from . import db
+import datetime
+from sqlalchemy import func, extract, or_
+import json
+from calendar import month_name
+import csv
+import io
 
 # Inisialisasi Blueprint
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -12,7 +18,69 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('admin/dashboard.html', title='Dashboard Admin')
+    """
+    Halaman dashboard yang menampilkan statistik kunci dan grafik.
+    """
+    sekarang = datetime.datetime.now()
+    bulan_ini = sekarang.month
+    tahun_ini = sekarang.year
+
+    
+    total_pendapatan_query = db.session.query(func.sum(Tagihan.total_bayar)).filter(
+        Tagihan.status == 'Lunas',
+        extract('month', Tagihan.tanggal_bayar) == bulan_ini,
+        extract('year', Tagihan.tanggal_bayar) == tahun_ini
+    ).scalar()
+    total_pendapatan_bulan_ini = total_pendapatan_query or 0
+    tagihan_belum_lunas = Tagihan.query.filter_by(status='Belum Bayar').count()
+    total_pelanggan = Pelanggan.query.count()
+    petugas_role = Roles.query.filter_by(nama_role='petugas').first()
+    total_petugas = Users.query.filter_by(role_id=petugas_role.id).count() if petugas_role else 0
+    tagihan_terbaru_belum_lunas = Tagihan.query.filter_by(status='Belum Bayar').order_by(Tagihan.tanggal_tagihan.desc()).limit(5).all()
+
+    # --- LOGIKA BARU UNTUK DATA GRAFIK (6 BULAN TERAKHIR) ---
+    chart_data = {}
+    nama_bulan_id = ["", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+
+    for i in range(6):
+        # Mundur bulan per bulan
+        target_date = sekarang - datetime.timedelta(days=i*30)
+        bulan = target_date.month
+        tahun = target_date.year
+        label = f"{nama_bulan_id[bulan]} {tahun}"
+        
+        # Inisialisasi data untuk bulan ini jika belum ada
+        if label not in chart_data:
+            chart_data[label] = 0
+
+    # Query untuk mengambil total tagihan per bulan
+    six_months_ago = sekarang - datetime.timedelta(days=180)
+    monthly_totals = db.session.query(
+        extract('year', Tagihan.tanggal_tagihan).label('tahun'),
+        extract('month', Tagihan.tanggal_tagihan).label('bulan'),
+        func.sum(Tagihan.total_bayar).label('total')
+    ).filter(Tagihan.tanggal_tagihan >= six_months_ago).group_by('tahun', 'bulan').all()
+
+    # Isi data dari hasil query
+    for row in monthly_totals:
+        label = f"{nama_bulan_id[row.bulan]} {row.tahun}"
+        if label in chart_data:
+            chart_data[label] = float(row.total)
+
+    # Urutkan data dan siapkan untuk dikirim ke template
+    chart_labels = json.dumps(list(reversed(chart_data.keys())))
+    chart_values = json.dumps(list(reversed(chart_data.values())))
+    # -----------------------------------------------------------
+
+    return render_template('admin/dashboard.html', 
+                           title='Dashboard Admin',
+                           total_pendapatan_bulan_ini=total_pendapatan_bulan_ini,
+                           tagihan_belum_lunas=tagihan_belum_lunas,
+                           total_pelanggan=total_pelanggan,
+                           total_petugas=total_petugas,
+                           tagihan_terbaru=tagihan_terbaru_belum_lunas,
+                           chart_labels=chart_labels, # <-- Kirim data grafik
+                           chart_values=chart_values) # <-- Kirim data grafik
 
 # --- MANAJEMEN TARIF ---
 @admin_bp.route('/tarif')
@@ -60,8 +128,36 @@ def hapus_tarif(id):
 @admin_bp.route('/pelanggan')
 @login_required
 def list_pelanggan():
-    semua_pelanggan = Pelanggan.query.all()
-    return render_template('admin/pelanggan_list.html', title='Manajemen Pelanggan', daftar_pelanggan=semua_pelanggan)
+    # --- LOGIKA BARU UNTUK PENCARIAN & PAGINASI ---
+    
+    # 1. Ambil kata kunci pencarian dan nomor halaman dari URL
+    query = request.args.get('q', '', type=str)
+    page = request.args.get('page', 1, type=int)
+    
+    # 2. Query dasar untuk pelanggan
+    pelanggan_query = Pelanggan.query.order_by(Pelanggan.nama_pelanggan)
+    
+    # 3. Jika ada kata kunci pencarian, filter datanya
+    if query:
+        search_term = f"%{query}%"
+        pelanggan_query = pelanggan_query.filter(
+            or_(
+                Pelanggan.nama_pelanggan.like(search_term),
+                Pelanggan.nomor_meter.like(search_term),
+                Pelanggan.no_telepon.like(search_term),
+                Pelanggan.email.like(search_term)
+            )
+        )
+        
+    # 4. Lakukan paginasi: 10 item per halaman
+    pagination = pelanggan_query.paginate(page=page, per_page=10, error_out=False)
+    daftar_pelanggan = pagination.items
+    
+    return render_template('admin/pelanggan_list.html', 
+                           title='Manajemen Pelanggan', 
+                           daftar_pelanggan=daftar_pelanggan,
+                           pagination=pagination,
+                           query=query)
 
 @admin_bp.route('/pelanggan/tambah', methods=['GET', 'POST'])
 @login_required
@@ -153,25 +249,42 @@ def hapus_pelanggan(id):
 @admin_bp.route('/petugas')
 @login_required
 def list_petugas():
+    # --- LOGIKA BARU UNTUK PENCARIAN & PAGINASI ---
     
-    # 1. Ambil ID untuk role 'admin' dan 'petugas'
+    # 1. Ambil parameter dari URL
+    query = request.args.get('q', '', type=str)
+    page = request.args.get('page', 1, type=int)
+
+    # 2. Query dasar untuk mengambil semua staf (admin & petugas)
     admin_role = Roles.query.filter_by(nama_role='admin').first()
     petugas_role = Roles.query.filter_by(nama_role='petugas').first()
-
-    # Pastikan role ada sebelum melanjutkan
+    
     if not admin_role or not petugas_role:
-        flash('Role "admin" atau "petugas" tidak ditemukan di database.', 'danger')
+        flash('Role "admin" atau "petugas" tidak ditemukan.', 'danger')
         return redirect(url_for('admin.dashboard'))
 
-    # 2. Ambil semua user yang memiliki salah satu dari dua role tersebut
     role_ids = [admin_role.id, petugas_role.id]
-    daftar_staf = Users.query.filter(Users.role_id.in_(role_ids)).order_by(Users.id).all()
-    # --------------------------------
+    staf_query = Users.query.filter(Users.role_id.in_(role_ids))
 
+    # 3. Jika ada kata kunci pencarian, filter datanya
+    if query:
+        search_term = f"%{query}%"
+        staf_query = staf_query.filter(
+            or_(
+                Users.username.like(search_term),
+                Users.nama_lengkap.like(search_term)
+            )
+        )
+    
+    # 4. Lakukan paginasi: 10 item per halaman
+    pagination = staf_query.order_by(Users.id).paginate(page=page, per_page=10, error_out=False)
+    daftar_staf = pagination.items
+    
     return render_template('admin/petugas_list.html', 
                            title='Manajemen Staf', 
-                           daftar_petugas=daftar_staf) 
-
+                           daftar_petugas=daftar_staf,
+                           pagination=pagination,
+                           query=query)
 
 @admin_bp.route('/petugas/tambah', methods=['GET', 'POST'])
 @login_required
@@ -254,4 +367,72 @@ def bayar_tagihan(id):
         flash('Tagihan ini sudah lunas atau dibatalkan.', 'info')
     
     return redirect(url_for('admin.list_tagihan'))
+
+# --- MANAJEMEN LAPORAN ---
+
+@admin_bp.route('/laporan', methods=['GET'])
+@login_required
+def laporan():
+    """
+    Menampilkan halaman untuk memilih periode laporan.
+    """
+    return render_template('admin/laporan.html', title='Buat Laporan Tagihan')
+
+@admin_bp.route('/laporan/unduh', methods=['POST'])
+@login_required
+def unduh_laporan():
+    """
+    Memproses permintaan unduh laporan dan menghasilkan file CSV.
+    """
+    try:
+        tanggal_awal_str = request.form.get('tanggal_awal')
+        tanggal_akhir_str = request.form.get('tanggal_akhir')
+
+        # Konversi string tanggal ke objek date
+        tanggal_awal = datetime.datetime.strptime(tanggal_awal_str, '%Y-%m-%d').date()
+        tanggal_akhir = datetime.datetime.strptime(tanggal_akhir_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        flash('Format tanggal tidak valid. Silakan coba lagi.', 'danger')
+        return redirect(url_for('admin.laporan'))
+
+    # Ambil data tagihan dalam rentang tanggal yang dipilih
+    daftar_tagihan = Tagihan.query.join(Penggunaan).join(Pelanggan).filter(
+        Tagihan.tanggal_tagihan >= tanggal_awal,
+        Tagihan.tanggal_tagihan <= tanggal_akhir
+    ).order_by(Tagihan.tanggal_tagihan).all()
+
+    if not daftar_tagihan:
+        flash('Tidak ada data tagihan ditemukan untuk periode yang dipilih.', 'info')
+        return redirect(url_for('admin.laporan'))
+
+    # Proses pembuatan file CSV di memori
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Tulis header kolom
+    writer.writerow(['ID Tagihan', 'Tanggal Tagihan', 'Nama Pelanggan', 'Nomor Meter', 'Periode', 'Total Bayar (Rp)', 'Status', 'Tanggal Bayar'])
+
+    # Tulis baris data
+    for tagihan in daftar_tagihan:
+        writer.writerow([
+            tagihan.id,
+            tagihan.tanggal_tagihan.strftime('%Y-%m-%d'),
+            tagihan.penggunaan.pelanggan.nama_pelanggan,
+            tagihan.penggunaan.pelanggan.nomor_meter,
+            f"{tagihan.penggunaan.bulan}/{tagihan.penggunaan.tahun}",
+            tagihan.total_bayar,
+            tagihan.status,
+            tagihan.tanggal_bayar.strftime('%Y-%m-%d') if tagihan.tanggal_bayar else ''
+        ])
+
+    output.seek(0)
+    
+    # Buat nama file yang dinamis
+    nama_file = f"laporan_tagihan_{tanggal_awal_str}_sd_{tanggal_akhir_str}.csv"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment;filename={nama_file}"}
+    )
 

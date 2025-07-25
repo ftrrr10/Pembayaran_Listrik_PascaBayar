@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 from functools import wraps
+from .models import Tagihan
 
 # Membuat blueprint baru untuk area pelanggan
 pelanggan_bp = Blueprint('pelanggan', __name__, url_prefix='/pelanggan')
@@ -36,3 +37,19 @@ def dashboard():
     )
 
     return render_template('pelanggan/dashboard.html', daftar_tagihan=semua_tagihan)
+
+@pelanggan_bp.route('/tagihan/<int:tagihan_id>')
+@login_required
+@pelanggan_required
+def tagihan_detail(tagihan_id):
+    """
+    Menampilkan rincian lengkap dari satu tagihan spesifik.
+    """
+    tagihan = Tagihan.query.get_or_404(tagihan_id)
+
+    # Keamanan: Pastikan pelanggan hanya bisa melihat tagihannya sendiri
+    if tagihan.penggunaan.pelanggan.user_id != current_user.id:
+        abort(403)
+
+    return render_template('pelanggan/tagihan_detail.html', tagihan=tagihan)
+

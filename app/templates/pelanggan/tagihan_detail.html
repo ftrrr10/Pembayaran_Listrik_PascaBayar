@@ -1,0 +1,71 @@
+{% extends "pelanggan/layout_pelanggan.html" %}
+
+{% block title %}Detail Tagihan #{{ tagihan.id }}{% endblock %}
+
+{% block content %}
+<style>
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1rem 2rem;
+        line-height: 1.8;
+    }
+    .detail-grid dt {
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+    .detail-grid dd {
+        margin: 0;
+        font-weight: 500;
+    }
+    .calculation {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 2rem;
+    }
+    .calculation h3 {
+        margin-top: 0;
+    }
+</style>
+
+<h2>Detail Tagihan #{{ tagihan.id }}</h2>
+<hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+<dl class="detail-grid">
+    <dt>Status</dt>
+    <dd>
+        {% if tagihan.status == 'Lunas' %}
+            <span class="status-lunas">{{ tagihan.status }}</span>
+        {% else %}
+            <span class="status-belum">{{ tagihan.status }}</span>
+        {% endif %}
+    </dd>
+    <dt>Periode</dt>
+    <dd>{{ tagihan.penggunaan.bulan }}/{{ tagihan.penggunaan.tahun }}</dd>
+    <dt>Tanggal Tagihan</dt>
+    <dd>{{ tagihan.tanggal_tagihan.strftime('%d %B %Y') }}</dd>
+    <dt>Tanggal Bayar</dt>
+    <dd>{{ tagihan.tanggal_bayar.strftime('%d %B %Y') if tagihan.tanggal_bayar else '-' }}</dd>
+</dl>
+
+<div class="calculation">
+    <h3>Rincian Perhitungan</h3>
+    <dl class="detail-grid">
+        <dt>Meter Awal</dt>
+        <dd>{{ "{:,}".format(tagihan.penggunaan.meter_awal).replace(',', '.') }}</dd>
+        <dt>Meter Akhir</dt>
+        <dd>{{ "{:,}".format(tagihan.penggunaan.meter_akhir).replace(',', '.') }}</dd>
+        <dt>Total Pemakaian</dt>
+        <dd><strong>{{ "{:,}".format(tagihan.jumlah_meter).replace(',', '.') }} kWh</strong></dd>
+        <hr>
+        <hr>
+        <dt>Tarif per kWh</dt>
+        <dd>Rp {{ "{:,.2f}".format(tagihan.penggunaan.pelanggan.tarif.tarif_per_kwh).replace(",", "X").replace(".", ",").replace("X", ".") }}</dd>
+        <dt>Total Tagihan</dt>
+        <dd><strong style="font-size: 1.2rem; color: var(--primary-color);">Rp {{ "{:,.2f}".format(tagihan.total_bayar).replace(",", "X").replace(".", ",").replace("X", ".") }}</strong></dd>
+    </dl>
+</div>
+
+<a href="{{ url_for('pelanggan.dashboard') }}" style="display: inline-block; margin-top: 2rem;">&laquo; Kembali ke Riwayat Tagihan</a>
+{% endblock %}

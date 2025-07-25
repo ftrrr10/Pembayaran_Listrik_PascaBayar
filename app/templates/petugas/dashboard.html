@@ -2,40 +2,71 @@
 
 {% block title %}Dashboard Petugas{% endblock %}
 
+{% block page_title %}Dashboard{% endblock %}
+
 {% block content %}
 <style>
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #EAEAEA; }
-    th { color: #888; text-transform: uppercase; font-size: 0.9rem; }
-    .btn-catat { background-color: var(--primary-color); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; }
+    /* Style khusus untuk kartu statistik */
+    .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 5px solid var(--primary-color);
+    }
+    .stat-card h3 {
+        margin: 0 0 0.5rem 0;
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+    .stat-card .value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    .quick-access a {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: transform 0.2s;
+    }
+    .quick-access a:hover {
+        transform: translateY(-3px);
+    }
 </style>
-<h2>Daftar Pelanggan</h2>
-<p>Pilih pelanggan untuk memulai pencatatan meter bulan ini.</p>
-<br>
-<table>
-    <thead>
-        <tr>
-            <th>No. Meter</th>
-            <th>Nama Pelanggan</th>
-            <th>Alamat</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for pelanggan in daftar_pelanggan %}
-        <tr>
-            <td>{{ pelanggan.nomor_meter }}</td>
-            <td>{{ pelanggan.nama_pelanggan }}</td>
-            <td>{{ pelanggan.alamat }}</td>
-            <td>
-                <a href="{{ url_for('petugas.catat_meter', pelanggan_id=pelanggan.id) }}" class="btn-catat">Catat Meter</a>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="4" style="text-align:center; padding: 2rem;">Belum ada data pelanggan.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+<h3>Selamat Datang, {{ current_user.nama_lengkap }}!</h3>
+<p style="color: var(--text-muted);">Berikut adalah ringkasan pekerjaan Anda bulan ini.</p>
+<hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+<div class="stat-cards">
+    <div class="stat-card">
+        <h3>Pelanggan Tercatat (Bulan Ini)</h3>
+        <p class="value">{{ tercatat }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Sisa Pelanggan Belum Dicatat</h3>
+        <p class="value">{{ sisa }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Total Pelanggan</h3>
+        <p class="value">{{ total_pelanggan }}</p>
+    </div>
+</div>
+
+<div class="quick-access">
+    <a href="{{ url_for('petugas.pencatatan_meter') }}">
+        <i class="fas fa-edit"></i> Mulai Pencatatan Meter
+    </a>
+</div>
 {% endblock %}

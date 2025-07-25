@@ -176,3 +176,125 @@ td .actions a:hover { text-decoration: underline; }
     font-weight: bold;
     font-size: 0.9rem;
 }
+
+/* === STYLE BARU UNTUK DASHBOARD ADMIN === */
+
+.stat-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stat-card .icon {
+    font-size: 2.5rem;
+    padding: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.stat-card.revenue .icon { background-color: #27AE60; } /* Hijau */
+.stat-card.unpaid .icon { background-color: #E74C3C; } /* Merah */
+.stat-card.customers .icon { background-color: #3498DB; } /* Biru */
+.stat-card.officers .icon { background-color: #9B59B6; } /* Ungu */
+
+.stat-card .info h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.stat-card .info .value {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.dashboard-section {
+    margin-top: 3rem;
+}
+.dashboard-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* === STYLE BARU UNTUK PENCARIAN & PAGINASI === */
+
+.page-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-input {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-width: 300px;
+    font-size: 0.9rem;
+}
+
+.pagination-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination-link {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.pagination-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: bold;
+}
+
+.pagination-link.disabled {
+    color: #ccc;
+    pointer-events: none;
+}
+
+/* Style tambahan untuk input tanggal */
+.form-input {
+    /* Style ini akan diterapkan ke semua input, termasuk tanggal */
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: inherit;
+    width: 100%;
+}

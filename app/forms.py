@@ -54,7 +54,6 @@ class PetugasForm(FlaskForm):
 
 class FormPencatatanMeter(FlaskForm):
     """Form untuk petugas mencatat meteran akhir pelanggan."""
-    # Kita akan set bulan dan tahun secara otomatis
     meter_akhir = IntegerField('Angka Meteran Terakhir', 
                                validators=[DataRequired(), 
                                            NumberRange(min=0, message="Angka meteran tidak boleh negatif.")])
